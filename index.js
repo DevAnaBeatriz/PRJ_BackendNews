@@ -21,13 +21,19 @@ app.get('/api/news', async (req, res) => {
   const query = req.query.q;
   const category = req.query.category;
 
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'NEWS_API_KEY não configurada' });
+  let url = `https://newsapi.org/v2/${query ? 'everything' : 'top-headlines'}?apiKey=${API_KEY}`;
+
+  if (!query) {
+    url += '&country=us';
   }
 
-  let url = `https://newsapi.org/v2/${query ? 'everything' : 'top-headlines'}?country=us&apiKey=${API_KEY}`;
-  if (category) url += `&category=${category}`;
-  if (query) url += `&q=${query}`;
+  if (category && !query) {
+    url += `&category=${category}`;
+  }
+
+  if (query) {
+    url += `&q=${query}`;
+  }
 
   console.log('🔗 URL final:', url);
 
@@ -46,6 +52,7 @@ app.get('/api/news', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar notícias' });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
